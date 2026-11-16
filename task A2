@@ -1,0 +1,35 @@
+#include <stdio.h>
+int digital_root(int n) {
+    if (n < 10) {
+        return n;
+    }
+    return (n % 10) + digital_root(n / 10);
+}
+long long power_fast(long long base, int exp) {
+    if (exp == 0) {
+        return 1;
+    }
+    long long half = power_fast(base, exp / 2);
+
+    if (exp % 2 == 0) {
+        return half * half;
+    } else {
+        return base * half * half;
+    }
+}
+
+int main() {
+    printf("--- TASK A2: RECURSION TEST ---\n\n");
+    int test_num = 9876; 
+    printf("Digital Root Testing:\n");
+    printf("Number: %d\n", test_num);
+    printf("Result: %d\n\n", digital_root(test_num));
+
+    long long base = 2;
+    int exponent = 10;
+    printf("Fast Power Testing:\n");
+    printf("Calculation: %lld^%d\n", base, exponent);
+    printf("Result: %lld\n", power_fast(base, exponent));
+
+    return 0;
+}
