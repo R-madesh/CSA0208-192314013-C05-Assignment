@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#define MAX_NAME_LEN 50
+
+void process_donor_input() {
+    char name[MAX_NAME_LEN];
+
+    printf("\n--- Testing Safe Input ---\n");
+    printf("Enter donor name : max ");
+  
+    if (fgets(name, sizeof(name), stdin) != NULL) {
+        name[strcspn(name, "\n")] = 0;
+        printf("Successfully recorded name: %s\n", name);
+    }
+}
+
+void open_data_file(const char *filename) {
+    printf("\n--- Testing File Error Handling ---\n");
+    printf("Attempting to open file: %s\n", filename);
+    
+    FILE *fp = fopen(filename, "r");
+    if (fp == NULL) {
+  
+        perror("Error opening file");
+    } else {
+        printf("File opened successfully!\n");
+        fclose(fp);
+    }
+}
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <command> [argument]\n", argv[0]);
+        fprintf(stderr, "Example: %s find O+\n", argv[0]);
+        return 1;
+    }
+
+    if (argc < 3) {
+        fprintf(stderr, "Error: Missing argument for command '%s'\n", argv[1]);
+        return 1;
+    }
+
+    printf("Command received: %s\n", argv[1]);
+    printf("Argument received: %s\n", argv[2]);
+
+    // 1. Demonstrate Command Line Logic
+    if (strcmp(argv[1], "find") != 0) {
+        fprintf(stderr, "Error: Unknown command '%s'\n", argv[1]);
+    } else {
+        printf("Searching for blood group: %s...\n", argv[2]);
+    }
+
+    // 2. Demonstrate Safe Input (prevents buffer overflow)
+    process_donor_input();
+
+    // 3. Demonstrate Error Handling (missing file)
+    open_data_file("non_existent_blood_bank_data.txt");
+
+    printf("\nProgram finished successfully without crashing.\n");
+
+    return 0;
+}
