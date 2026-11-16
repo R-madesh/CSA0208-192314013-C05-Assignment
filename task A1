@@ -1,0 +1,129 @@
+#include <stdio.h>
+#include <string.h>
+
+typedef struct {
+    int id;
+    char name[50];
+    char blood_group[4];
+    int age;
+    char phone[15];
+    int last_donation_days_ago; 
+} Donor;
+
+typedef struct {
+    char blood_group[4];
+    int units;
+} Stock;
+
+// Structure for Task A1.3 (Alternative 2: Returning a Structure)
+typedef struct {
+    int count;
+    int youngest_id;
+} EligibilityResult;
+
+// --- FUNCTION PROTOTYPES (Task A1.2) ---
+void register_donor(Donor *d, int id, const char *name, const char *bg, int age, const char *ph, int last_days);
+int check_eligibility(const Donor *d);
+int get_eligible_info_ptr(const Donor *list, int size, int *youngest_id);
+EligibilityResult get_eligible_info_struct(const Donor *list, int size);
+void update_stock(Stock *s, int change);
+
+int main() {
+    // 1. Initialize some data
+    Donor donor_list[3] = {
+        {101, "Alice", "O+", 25, "12345", 100},
+        {102, "Bob", "A-", 19, "67890", 10},  // Eligible and Youngest
+        {103, "Charlie", "O+", 40, "55555", 5} // Eligible
+    };
+    int donor_count = 3;
+
+    Stock hospital_stock[2] = {{"O+", 50}, {"A-", 10}};
+
+    printf("--- Blood Bank System Simulation ---\n\n");
+
+    // 2. Test Task A1.3 - Alternative 1: Using Pointers
+    int youngest_id_ptr = 0;
+    int count_ptr = get_eligible_info_ptr(donor_list, donor_count, &youngest_id_ptr);
+    
+    printf("[A1.3 Alt 1 - Pointers]\n");
+    printf("Eligible Donors Found: %d\n", count_ptr);
+    printf("Youngest Eligible ID: %d\n\n", youngest_id_ptr);
+
+    // 3. Test Task A1.3 - Alternative 2: Using Structure
+    EligibilityResult res = get_eligible_info_struct(donor_list, donor_count);
+    
+    printf("[A1.3 Alt 2 - Structure]\n");
+    printf("Eligible Donors Found: %d\n", res.count);
+    printf("Youngest Eligible ID: %d\n\n", res.youngest_id);
+
+    // 4. Test Task A1.2 - Registering a new donor
+    printf("[A1.2 - Registration]\n");
+    Donor new_donor;
+    register_donor(&new_donor, 104, "David", "B+", 30, "99999", 200);
+    printf("Registered: %s, Group: %s, Age: %d\n\n", new_donor.name, new_donor.blood_group, new_donor.age);
+
+    // 5. Test Task A1.2 - Updating Stock
+    printf("[A1.2 - Stock Update]\n");
+    printf("Old O+ Stock: %d\n", hospital_stock[0].units);
+    update_stock(&hospital_stock[0], -5); // Issue 5 units
+    printf("New O+ Stock: %d\n", hospital_stock[0].units);
+
+    return 0;
+}
+// A1.2: Register donor (Modifies the struct via pointer)
+void register_donor(Donor *d, int id, const char *name, const char *bg, int age, const char *ph, int last_days) {
+    d->id = id;
+    strcpy(d->name, name);
+    strcpy(d->blood_group, bg);
+    d->age = age;
+    strcpy(d->phone, ph);
+    d->last_donation_days_ago = last_days;
+}
+
+// A1.2: Check eligibility (Read-only access)
+int check_eligibility(const Donor *d) {
+    // Eligible if age >= 18 and last donation was > 90 days ago
+    if (d->age >= 18 && d->last_donation_days_ago > 90) {
+        return 1; 
+    }
+    return 0;
+}
+
+// A1.3: Alternative 1 (Returns count, uses pointer for youngest_id)
+int get_eligible_info_ptr(const Donor *list, int size, int *youngest_id) {
+    int count = 0;
+    int min_age = 999;
+    
+    for (int i = 0; i < size; i++) {
+        if (check_eligibility(&list[i])) {
+            count++;
+            if (list[i].age < min_age) {
+                min_age = list[i].age;
+                *youngest_id = list[i].id; // Updating the value at the pointer address
+            }
+        }
+    }
+    return count;
+}
+
+// A1.3: Alternative 2 (Returns a custom structure)
+EligibilityResult get_eligible_info_struct(const Donor *list, int size) {
+    EligibilityResult res = {0, 0};
+    int min_age = 999;
+
+    for (int i = 0; i < size; i++) {
+        if (check_eligibility(&list[i])) {
+            res.count++;
+            if (list[i].age < min_age) {
+                min_age = list[i].age;
+                res.youngest_id = list[i].id;
+            }
+        }
+    }
+    return res;
+}
+
+// A1.2: Update stock (Modifies units via pointer)
+void update_stock(Stock *s, int change) {
+    s->units += change;
+}
